@@ -172,6 +172,8 @@ public class RecipeStepInstructionFragment extends Fragment
 
         mMediaSession.setPlaybackState(mStateBuilder.build());
 
+        // MySessionCallback has method that handles callbacks from a media control
+        mMediaSession.setCallback(new MySessionCallback());
 
         // Start the Media Session since the fragment is active
         mMediaSession.setActive(true);
@@ -193,7 +195,7 @@ public class RecipeStepInstructionFragment extends Fragment
 
             // Prepare the MediaSource
             String userAgent = Util.getUserAgent(getContext(), "andbakingapp");
-            Log.d(TAG, "initializePlayer: " + userAgent);
+            Log.d(TAG, "initializePlayer: " + url.isEmpty());
 
             MediaSource mediaSource = new ExtractorMediaSource(
                                         Uri.parse(url),
@@ -263,5 +265,23 @@ public class RecipeStepInstructionFragment extends Fragment
     @Override
     public void onPositionDiscontinuity() {
 
+    }
+
+    // Media Session callbacks for all external clients
+    private class MySessionCallback extends MediaSessionCompat.Callback {
+        @Override
+        public void onPlay() {
+            mExoPlayer.setPlayWhenReady(true);
+        }
+
+        @Override
+        public void onPause() {
+            mExoPlayer.setPlayWhenReady(false);
+        }
+
+        @Override
+        public void onSkipToPrevious() {
+            mExoPlayer.seekTo(0);
+        }
     }
 }
