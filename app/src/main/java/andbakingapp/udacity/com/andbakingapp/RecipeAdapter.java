@@ -1,8 +1,10 @@
 package andbakingapp.udacity.com.andbakingapp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +12,8 @@ import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.security.spec.ECField;
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder>{
     private static final String TAG = RecipeAdapter.class.getSimpleName();
@@ -62,6 +66,8 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     }
 
     class RecipeViewHolder extends RecyclerView.ViewHolder {
+        private static final String RECIPE_DETAIL = "detail";
+
         TextView mRecipeDescription;
         Context mContext;
 
@@ -70,6 +76,24 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
 
             mRecipeDescription = (TextView) itemView.findViewById(R.id.tv_item_recipe);
             mContext = context;
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int position = getAdapterPosition();
+
+                    try {
+                        JSONObject specificRecipe = mRecipeArray.getJSONObject(position);
+                        Intent startRecipeIntent = new Intent(mContext, RecipeActivity.class);
+                        String recipeDetail = specificRecipe.toString();
+                        Log.d(TAG, "onClick: specific recipe detail" + recipeDetail);
+                        startRecipeIntent.putExtra(RECIPE_DETAIL, recipeDetail);
+                        mContext.startActivity(startRecipeIntent);
+                    } catch(Exception e) {
+                        Log.d(TAG, "onClick: " + e.getMessage());
+                    }
+                }
+            });
         }
 
         public void bind(String recipeName) {

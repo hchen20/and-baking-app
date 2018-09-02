@@ -19,7 +19,7 @@ import andbakingapp.udacity.com.andbakingapp.utils.NetworkUtils;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private RecyclerView mRecipeGrid;
+    private RecyclerView mRecipeRecyclerView;
     private RecipeAdapter mRecipeAdapter;
     private String mJsonResult;
 
@@ -28,18 +28,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mRecipeGrid = (RecyclerView)findViewById(R.id.rv_recipes);
+        mRecipeRecyclerView = (RecyclerView)findViewById(R.id.rv_recipes);
 
         int numOfColumns = 1;
 
         GridLayoutManager layoutManager = new GridLayoutManager(this,numOfColumns);
-        mRecipeGrid.setLayoutManager(layoutManager);
-        mRecipeGrid.setHasFixedSize(true);
+        mRecipeRecyclerView.setLayoutManager(layoutManager);
+        mRecipeRecyclerView.setHasFixedSize(true);
 
         if (isOnline()) {
             makeRecipeQuery();
             mRecipeAdapter = new RecipeAdapter(mJsonResult);
-            mRecipeGrid.setAdapter(mRecipeAdapter);
+            mRecipeRecyclerView.setAdapter(mRecipeAdapter);
         } else {
             String message = "Please connect to the Internet";
             Toast.makeText(this, message, Toast.LENGTH_LONG).show();
