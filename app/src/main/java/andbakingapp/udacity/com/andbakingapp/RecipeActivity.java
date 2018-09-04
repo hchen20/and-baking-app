@@ -4,6 +4,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 // This activity will display a specific recipe and
@@ -14,8 +16,12 @@ public class RecipeActivity extends AppCompatActivity
 
     private static final String RECIPE_DETAIL = "detail";
 
+    // Class variable to store recipe detail
     private String mRecipeDetail;
-    private int mMaxStep;
+
+    // Track whether to display a two-pane or single-pane UI
+    private boolean mTwoPane;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,14 +31,53 @@ public class RecipeActivity extends AppCompatActivity
         mRecipeDetail = getIntent().getStringExtra(RECIPE_DETAIL);
         Log.d(TAG, "onCreate: In RecipeActivity" + mRecipeDetail);
         // Retrieve the specific recipe string from intent
-        RecipeStepsFragment stepsFragment = new RecipeStepsFragment();
-        stepsFragment.setRecipeDetail(mRecipeDetail);
 
-        // Add recipe steps fragment to its container using FragmentManager and a Transaction
-        FragmentManager fm = getSupportFragmentManager();
-        fm.beginTransaction()
-                .add(R.id.recipe_steps_container, stepsFragment)
-                .commit();
+        Log.d(TAG, "onCreate: two-pane" + findViewById(R.id.recipe_steps_linear_layout).getId());
+        // Determine if the activity is two-pane or single-pane display
+        if (findViewById(R.id.recipe_steps_linear_layout) != null) {
+            // This LinearLayout will only initially exist in the two-pane tablet case
+            mTwoPane = true;
+
+            // Getting rid of the "Next" and "Previous" button that appears on the phone
+            if (savedInstanceState == null) {
+                // In two-pane mode, add initial RecipesStepsFragment and
+                // RecipeStepInstructionFragment to the screen
+
+                RecipeStepsFragment stepsFragment = new RecipeStepsFragment();
+                stepsFragment.setRecipeDetail(mRecipeDetail);
+
+                // Add recipe steps fragment to its container using FragmentManager and a Transaction
+                FragmentManager fm = getSupportFragmentManager();
+                fm.beginTransaction()
+                        .add(R.id.recipe_steps_container, stepsFragment)
+                        .commit();
+
+                // Todo (5) Get clicked position
+                RecipeStepInstructionFragment newFragment = new RecipeStepInstructionFragment();
+                newFragment.setRecipeStepDetail(mRecipeDetail);
+                newFragment.setStepIdx(0);
+                newFragment.setTwoPane();
+
+
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.recipe_steps_linear_layout, newFragment)
+                        .commit();
+
+            }
+        } else {
+            // In single-pane one and displaying fragment in separate activities
+            mTwoPane = false;
+
+            // Only set the RecipeStepsFragment
+            RecipeStepsFragment stepsFragment = new RecipeStepsFragment();
+            stepsFragment.setRecipeDetail(mRecipeDetail);
+
+            // Add recipe steps fragment to its container using FragmentManager and a Transaction
+            FragmentManager fm = getSupportFragmentManager();
+            fm.beginTransaction()
+                    .add(R.id.recipe_steps_container, stepsFragment)
+                    .commit();
+        }
     }
 
 
@@ -75,8 +120,17 @@ public class RecipeActivity extends AppCompatActivity
         newFragment.setStepIdx(position);
         newFragment.setRecipeStepDetail(mRecipeDetail);
 
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.recipe_steps_container, newFragment)
-                .commit();
+        FragmentManager fm = getSupportFragmentManager();
+
+        if (mTwoPane) {
+            newFragment.setTwoPane();
+            fm.beginTransaction()
+                    .replace(R.id.recipe_steps_linear_layout, newFragment)
+                    .commit();
+        } else {
+            fm.beginTransaction()
+                    .replace(R.id.recipe_steps_container, newFragment)
+                    .commit();
+        }
     }
 }

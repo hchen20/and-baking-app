@@ -60,6 +60,8 @@ public class RecipeStepInstructionFragment extends Fragment
     private int mStepIdx;
     private JSONArray mRecipeStepsJson;
     private String mStepDescription;
+    private String mVideoUrl;
+    private boolean mTwoPane;
 
     OnButtonClickListener mCallback;
 
@@ -70,6 +72,13 @@ public class RecipeStepInstructionFragment extends Fragment
 
     public RecipeStepInstructionFragment() {
         // Required empty public constructor
+    }
+
+
+
+    // Removing buttons for two-pane view
+    public void setTwoPane() {
+        mTwoPane = true;
     }
 
     // Override onAttach to make sure that the container host activity has implemented the callback
@@ -98,14 +107,22 @@ public class RecipeStepInstructionFragment extends Fragment
         mNextButton = (Button) rootView.findViewById(R.id.btn_next);
         mPreviousButton = (Button) rootView.findViewById(R.id.btn_previous);
 
+        if (mTwoPane) {
+            mNextButton.setVisibility(View.GONE);
+            mPreviousButton.setVisibility(View.GONE);
+        }
+
         try {
             JSONObject currentStep = mRecipeStepsJson.getJSONObject(mStepIdx);
+
+            // Initialize the video url
+            mVideoUrl = currentStep.getString("videoURL");
 
             // Initialize the Media Session
             initializeMediaSession();
 
             // Initialize the player
-            initializePlayer(currentStep.getString("videoURL"));
+            initializePlayer(mVideoUrl);
 
             mStepInstructionView.setText(currentStep.getString("description"));
         } catch (Exception e) {
@@ -210,9 +227,12 @@ public class RecipeStepInstructionFragment extends Fragment
 
     // Release ExoPlayer
     private void releasePlayer() {
-        mExoPlayer.stop();
-        mExoPlayer.release();
-        mExoPlayer = null;
+        // Check if the ExoPlayer is null or not
+        if (mExoPlayer != null) {
+            mExoPlayer.stop();
+            mExoPlayer.release();
+            mExoPlayer = null;
+        }
     }
 
     // Release the player when the activity is destroyed
@@ -282,6 +302,38 @@ public class RecipeStepInstructionFragment extends Fragment
         @Override
         public void onSkipToPrevious() {
             mExoPlayer.seekTo(0);
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (Util.SDK_INT > 23) {
+            initializePlayer(mVideoUrl);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (Util.SDK_INT <= 23 || mExoPlayer == null) {
+            initializePlayer(mVideoUrl);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (Util.SDK_INT <= 23) {
+            releasePlayer();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (Util.SDK_INT > 23) {
+            releasePlayer();
         }
     }
 }
