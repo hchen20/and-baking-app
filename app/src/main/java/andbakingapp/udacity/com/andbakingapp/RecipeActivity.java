@@ -32,9 +32,10 @@ public class RecipeActivity extends AppCompatActivity
         Log.d(TAG, "onCreate: In RecipeActivity" + mRecipeDetail);
         // Retrieve the specific recipe string from intent
 
-        Log.d(TAG, "onCreate: two-pane" + findViewById(R.id.recipe_steps_linear_layout).getId());
+
         // Determine if the activity is two-pane or single-pane display
         if (findViewById(R.id.recipe_steps_linear_layout) != null) {
+            Log.d(TAG, "onCreate: two-pane" + findViewById(R.id.recipe_steps_linear_layout).getId());
             // This LinearLayout will only initially exist in the two-pane tablet case
             mTwoPane = true;
 
@@ -68,6 +69,10 @@ public class RecipeActivity extends AppCompatActivity
             // In single-pane one and displaying fragment in separate activities
             mTwoPane = false;
 
+            if (savedInstanceState != null) {
+                mRecipeDetail = savedInstanceState.getString(RECIPE_DETAIL);
+            }
+
             // Only set the RecipeStepsFragment
             RecipeStepsFragment stepsFragment = new RecipeStepsFragment();
             stepsFragment.setRecipeDetail(mRecipeDetail);
@@ -80,6 +85,11 @@ public class RecipeActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(RECIPE_DETAIL, mRecipeDetail);
+    }
 
     @Override
     public void onButtonClicked(int id, int index) {

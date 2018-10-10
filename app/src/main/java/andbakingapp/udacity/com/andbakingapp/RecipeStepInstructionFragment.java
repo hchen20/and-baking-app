@@ -5,6 +5,8 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -47,6 +49,14 @@ public class RecipeStepInstructionFragment extends Fragment
                 implements View.OnClickListener, ExoPlayer.EventListener {
     private static final String TAG = RecipeStepInstructionFragment.class.getSimpleName();
 
+    private static String RECIPE_DETAIL = "details";
+    private static String TWO_PANE = "twopane";
+    private static String PLAYER_POSITION = "position";
+    private static String PLAYER_STATE = "state";
+    private static String VIDEO_URL = "video";
+
+
+
     private TextView mStepInstructionView;
     private Button mNextButton;
     private Button mPreviousButton;
@@ -54,12 +64,13 @@ public class RecipeStepInstructionFragment extends Fragment
     private SimpleExoPlayerView mPlayerView;
     private static MediaSessionCompat mMediaSession;
     private PlaybackStateCompat.Builder mStateBuilder;
-    private NotificationManager mNotificationManager;
 
     private String mRecipeStepDetail;
     private int mStepIdx;
+    private long mPlayerPosition;
+    private boolean mPlayState;
+
     private JSONArray mRecipeStepsJson;
-    private String mStepDescription;
     private String mVideoUrl;
     private boolean mTwoPane;
 
@@ -100,7 +111,18 @@ public class RecipeStepInstructionFragment extends Fragment
         View rootView = inflater.inflate(R.layout.fragment_recipe_step_instruction, container, false);
 
         Log.d(TAG, "onCreateView: Step instruction creation");
-        
+
+        if (savedInstanceState != null) {
+            mRecipeStepDetail = savedInstanceState.getString(RECIPE_DETAIL);
+            mPlayerPosition = savedInstanceState.getLong(PLAYER_POSITION);
+            mPlayState = savedInstanceState.getBoolean(PLAYER_STATE);
+            mTwoPane = savedInstanceState.getBoolean(TWO_PANE);
+            mVideoUrl = savedInstanceState.getString(VIDEO_URL);
+        } else {
+            mPlayState = true;
+            mPlayerPosition = 0;
+        }
+
         // Initialize the player view, textview, and buttons
         mPlayerView = (SimpleExoPlayerView) rootView.findViewById(R.id.player_view);
         mStepInstructionView = (TextView) rootView.findViewById(R.id.tv_recipe_step_instruction);
@@ -199,7 +221,7 @@ public class RecipeStepInstructionFragment extends Fragment
     // Initialize ExoPlayer
     private void initializePlayer(String url) {
         // Check if the player is null
-        Log.d(TAG, "initializePlayer: " + url);
+        Log.d(TAG, "initializePlayer: start initializing player");
         if (mExoPlayer == null) {
             // Create a instance of the ExoPlayer
             TrackSelector trackSelector = new DefaultTrackSelector();
@@ -212,7 +234,7 @@ public class RecipeStepInstructionFragment extends Fragment
 
             // Prepare the MediaSource
             String userAgent = Util.getUserAgent(getContext(), "andbakingapp");
-            Log.d(TAG, "initializePlayer: " + url.isEmpty());
+            Log.d(TAG, "initializePlayer: userAgent null? " + (url == null));
 
             MediaSource mediaSource = new ExtractorMediaSource(
                                         Uri.parse(url),
@@ -220,8 +242,10 @@ public class RecipeStepInstructionFragment extends Fragment
                                         new DefaultExtractorsFactory(),
                                         null,
                                         null);
+
             mExoPlayer.prepare(mediaSource);
-            mExoPlayer.setPlayWhenReady(true);
+            mExoPlayer.seekTo(mPlayerPosition);
+            mExoPlayer.setPlayWhenReady(mPlayState);
         }
     }
 
@@ -286,6 +310,28 @@ public class RecipeStepInstructionFragment extends Fragment
     public void onPositionDiscontinuity() {
 
     }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(RECIPE_DETAIL, mRecipeStepDetail);
+        if (mExoPlayer != null) {
+            Log.d(TAG, "onSaveInstanceState: the player is not null");
+            outState.putLong(PLAYER_POSITION, mExoPlayer.getCurrentPosition());
+            outState.putBoolean(PLAYER_STATE, mExoPlayer.getPlayWhenReady());
+        }
+        outState.putBoolean(TWO_PANE, mTwoPane);
+        outState.putString(VIDEO_URL, mVideoUrl);
+    }
+
+//    @Override
+//    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+//        super.onViewStateRestored(savedInstanceState);
+//        mRecipeStepDetail = savedInstanceState.getString(RECIPE_DETAIL);
+//        mPlayerPosition = savedInstanceState.getLong(PLAYER_POSITION);
+//        mPlayState = savedInstanceState.getBoolean(PLAYER_STATE);
+//        mTwoPane = savedInstanceState.getBoolean(TWO_PANE);
+//    }
 
     // Media Session callbacks for all external clients
     private class MySessionCallback extends MediaSessionCompat.Callback {

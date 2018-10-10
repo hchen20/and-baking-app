@@ -1,5 +1,6 @@
 package andbakingapp.udacity.com.andbakingapp;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -82,12 +83,29 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
                 public void onClick(View view) {
                     int position = getAdapterPosition();
 
+
                     try {
                         JSONObject specificRecipe = mRecipeArray.getJSONObject(position);
-                        Intent startRecipeIntent = new Intent(mContext, RecipeActivity.class);
                         String recipeDetail = specificRecipe.toString();
+
+                        Intent fillinWidget = new Intent(mContext, IngredientWidgetProvider.class);
+                        fillinWidget.putExtra(RECIPE_DETAIL, recipeDetail);
+
+                        PendingIntent pendingIntent =  PendingIntent.getBroadcast(
+                                                            mContext,
+                                                            0,
+                                                            fillinWidget,
+                                                            PendingIntent.FLAG_UPDATE_CURRENT);
+
+                        pendingIntent.send();
+
+                        Intent startRecipeIntent = new Intent(mContext, RecipeActivity.class);
+
                         Log.d(TAG, "onClick: specific recipe detail" + recipeDetail);
                         startRecipeIntent.putExtra(RECIPE_DETAIL, recipeDetail);
+
+
+
                         mContext.startActivity(startRecipeIntent);
                     } catch(Exception e) {
                         Log.d(TAG, "onClick: " + e.getMessage());
