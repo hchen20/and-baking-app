@@ -32,5 +32,5 @@ ext {
     exoplayerVersion = 'r2.2.0'
     supportTestVersion = '1.0.2'
     junitVersion = '4.12'
-    butterknifeVersion = '9.0.0-rc1'
+    butterknifeVersion = '8.8.1'
 }
