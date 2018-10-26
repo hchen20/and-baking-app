@@ -18,14 +18,17 @@ import java.io.IOException;
 import java.net.URL;
 
 import andbakingapp.udacity.com.andbakingapp.utils.NetworkUtils;
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private static final String RECIPES_JSON_RESULT = "recipes";
-    
-    private RecyclerView mRecipeRecyclerView;
+
+    @BindView(R2.id.rv_recipes)
+    RecyclerView mRecipeRecyclerView;
     private GridLayoutManager layoutManager;
     private RecipeAdapter mRecipeAdapter;
     private String mJsonResult;
@@ -34,8 +37,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
-        mRecipeRecyclerView = (RecyclerView)findViewById(R.id.rv_recipes);
 
         int orientation = getResources().getConfiguration().orientation;
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {

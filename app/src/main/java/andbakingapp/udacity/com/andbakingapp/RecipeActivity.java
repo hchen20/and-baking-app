@@ -4,9 +4,11 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+import android.support.v7.widget.Toolbar;
 
 // This activity will display a specific recipe and
 public class RecipeActivity extends AppCompatActivity
@@ -32,6 +34,8 @@ public class RecipeActivity extends AppCompatActivity
         Log.d(TAG, "onCreate: In RecipeActivity" + mRecipeDetail);
         // Retrieve the specific recipe string from intent
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         // Determine if the activity is two-pane or single-pane display
         if (findViewById(R.id.recipe_steps_linear_layout) != null) {
@@ -83,6 +87,17 @@ public class RecipeActivity extends AppCompatActivity
                     .add(R.id.recipe_steps_container, stepsFragment)
                     .commit();
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // handle arrow click here
+        if (item.getItemId() == android.R.id.home) {
+            // Close activity or go back to the previous activity
+            finish();
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

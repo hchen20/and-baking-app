@@ -16,6 +16,9 @@ import org.json.JSONObject;
 
 import java.security.spec.ECField;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder>{
     private static final String TAG = RecipeAdapter.class.getSimpleName();
 
@@ -69,13 +72,16 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     class RecipeViewHolder extends RecyclerView.ViewHolder {
         private static final String RECIPE_DETAIL = "detail";
 
+        @BindView(R2.id.tv_item_recipe)
         TextView mRecipeDescription;
+
         Context mContext;
 
         public RecipeViewHolder(@NonNull View itemView, Context context) {
             super(itemView);
 
-            mRecipeDescription = (TextView) itemView.findViewById(R.id.tv_item_recipe);
+            ButterKnife.bind(this, itemView);
+
             mContext = context;
 
             itemView.setOnClickListener(new View.OnClickListener() {

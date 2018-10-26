@@ -14,6 +14,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class RecipeStepsAdapter extends RecyclerView.Adapter<RecipeStepsAdapter.RecipeStepsViewHolder> {
     private static final String TAG = RecipeStepsAdapter.class.getSimpleName();
 
@@ -75,12 +78,12 @@ public class RecipeStepsAdapter extends RecyclerView.Adapter<RecipeStepsAdapter.
 
     class RecipeStepsViewHolder extends RecyclerView.ViewHolder {
         // Class variable for step name
+        @BindView(R2.id.tv_step_name)
         TextView stepNameView;
 
         public RecipeStepsViewHolder(@NonNull View itemView) {
             super(itemView);
-
-            stepNameView = (TextView) itemView.findViewById(R.id.tv_step_name);
+            ButterKnife.bind(this, itemView);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

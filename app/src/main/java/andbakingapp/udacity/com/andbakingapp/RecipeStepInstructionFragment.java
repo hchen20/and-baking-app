@@ -41,6 +41,9 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -57,11 +60,19 @@ public class RecipeStepInstructionFragment extends Fragment
 
 
 
-    private TextView mStepInstructionView;
-    private Button mNextButton;
-    private Button mPreviousButton;
+    @BindView(R2.id.tv_recipe_step_instruction)
+    TextView mStepInstructionView;
+
+    @BindView(R2.id.btn_next)
+    Button mNextButton;
+
+    @BindView(R2.id.btn_previous)
+    Button mPreviousButton;
+
+    @BindView(R2.id.player_view)
+    SimpleExoPlayerView mPlayerView;
+
     private SimpleExoPlayer mExoPlayer;
-    private SimpleExoPlayerView mPlayerView;
     private static MediaSessionCompat mMediaSession;
     private PlaybackStateCompat.Builder mStateBuilder;
 
@@ -110,6 +121,7 @@ public class RecipeStepInstructionFragment extends Fragment
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_recipe_step_instruction, container, false);
 
+        ButterKnife.bind(this, rootView);
         Log.d(TAG, "onCreateView: Step instruction creation");
 
         if (savedInstanceState != null) {
@@ -123,11 +135,6 @@ public class RecipeStepInstructionFragment extends Fragment
             mPlayerPosition = 0;
         }
 
-        // Initialize the player view, textview, and buttons
-        mPlayerView = (SimpleExoPlayerView) rootView.findViewById(R.id.player_view);
-        mStepInstructionView = (TextView) rootView.findViewById(R.id.tv_recipe_step_instruction);
-        mNextButton = (Button) rootView.findViewById(R.id.btn_next);
-        mPreviousButton = (Button) rootView.findViewById(R.id.btn_previous);
 
         if (mTwoPane) {
             mNextButton.setVisibility(View.GONE);
